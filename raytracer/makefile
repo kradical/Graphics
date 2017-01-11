@@ -1,2 +1,2 @@
-make: a1.cc
-	g++ -o a1.out a1.cc
+make: raytracer.cc
+	g++ -o raytracer.out raytracer.cc
