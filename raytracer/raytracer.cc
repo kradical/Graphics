@@ -44,7 +44,7 @@ int main() {
 
 vec3 color(const ray& r, hitable* world) {
     hit_record rec;
-    if (world->hit(r, 0.0, MAXFLOAT, rec)) {
+    if (world->hit(r, 0.0, FLT_MAX, rec)) {
         return 0.5 * (rec.normal + 1);
     } else {
         vec3 unit_direction = unit_vector(r.direction);
