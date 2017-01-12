@@ -1,5 +1,5 @@
 #include <iostream>
-#include "vec3.h"
+#include "ray.h"
 
 int main() {
     int nx = 200;
@@ -16,4 +16,8 @@ int main() {
             std::cout << ir << " " << ig << " " << ib << "\n";
         }
     }
+}
+
+vec3 color(const ray& r) {
+    
 }
