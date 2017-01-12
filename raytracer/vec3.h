@@ -24,12 +24,20 @@ public:
     inline float operator[](int i) const { return e[i]; }
     inline float& operator[](int i) { return e[i]; }
 
-    inline const vec3& operator+=(const vec3 &v2);
+    inline const vec3& operator+=(const vec3 &v) {
+	    e[0] += v[0];
+		e[1] += v[1];
+		e[2] += v[2];
+	}
     inline const vec3& operator-=(const vec3 &v2);
     inline const vec3& operator*=(const vec3 &v2);
     inline const vec3& operator/=(const vec3 &v2);
     inline const vec3& operator*=(const float t);
-    inline const vec3& operator/=(const float t);
+    inline const vec3& operator/=(const float t) {
+		e[0] /= t;
+		e[1] /= t;
+		e[2] /= t;
+	}
 
     inline float length() const { return sqrt(squared_length()); }
     inline float squared_length() const { return e[0] * e[0] + e[1] * e[1] + e[2] * e[2]; }
