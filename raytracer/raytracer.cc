@@ -36,7 +36,7 @@ int main() {
                 ray r = cam.get_ray(u, v);
             
                 vec3 p = r.point_at_parameter(2.0);
-                col += color(r, world);
+                col += color(r, world, 0);
 			}
 
 			col /= float(ns);
