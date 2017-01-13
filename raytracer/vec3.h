@@ -36,6 +36,11 @@ public:
 		e[2] /= t;
 	}
 
+    // TODO: make this work
+    std::ostream& operator<<(std::ostream &os) { 
+        return os << "[ " << e[0] << ", " << e[1] << ", " << e[2] << " ]";
+    }
+
     inline float length() const { return sqrt(squared_length()); }
     inline float squared_length() const { return e[0] * e[0] + e[1] * e[1] + e[2] * e[2]; }
     inline void make_unit_vector();
