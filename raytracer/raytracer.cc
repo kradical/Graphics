@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdlib.h>
 
 #include "camera.h"
 #include "hitable_list.h"
