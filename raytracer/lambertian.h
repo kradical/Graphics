@@ -1,3 +1,6 @@
+#ifndef LAMBERTIANH
+#define LAMBERTIANH
+
 #include "material.h"
 
 class lambertian : public material {
@@ -12,3 +15,4 @@ public:
     
     vec3 albedo;
 };
+#endif

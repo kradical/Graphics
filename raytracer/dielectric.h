@@ -1,3 +1,6 @@
+#ifndef DIELECTRICH
+#define DIELECTRICH
+
 #include "material.h"
 
 class dielectric : public material { 
@@ -40,3 +43,4 @@ class dielectric : public material {
 
         float ref_idx;
 };
+#endif

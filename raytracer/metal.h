@@ -1,3 +1,6 @@
+#ifndef METALH
+#define METALH
+
 #include "material.h"
 
 class metal : public material {
@@ -13,3 +16,4 @@ public:
     vec3 albedo;
     float fuzz;
 };
+#endif
