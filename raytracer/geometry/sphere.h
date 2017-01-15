@@ -8,17 +8,17 @@ class material;
 class sphere: public hitable {
 public:
     sphere() {}
-    sphere(vec3 cen, float r, material* m) : center(cen), radius(r), mat_ptr(m) {};
+    sphere(Vec3 cen, float r, material* m) : center(cen), radius(r), mat_ptr(m) {};
 
-    virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const;
+    virtual bool hit(const Ray& r, float tmin, float tmax, hit_record& rec) const;
 
-    vec3 center;
+    Vec3 center;
     float radius;
     material* mat_ptr;
 };
 
-bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const {
-    vec3 oc = r.origin - center;
+bool sphere::hit(const Ray& r, float t_min, float t_max, hit_record& rec) const {
+    Vec3 oc = r.origin - center;
 
     float a = dot(r.direction, r.direction);
     float b = dot(oc, r.direction);

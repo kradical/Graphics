@@ -7,11 +7,11 @@ class dielectric : public material {
     public:
         dielectric(float ri) : ref_idx(ri) {}
         
-        virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const  {
-            attenuation = vec3(1.0, 1.0, 1.0);
-            vec3 outward_normal;
-            vec3 reflected = reflect(r_in.direction, rec.normal);
-            vec3 refracted;
+        virtual bool scatter(const Ray& r_in, const hit_record& rec, Vec3& attenuation, Ray& scattered) const  {
+            attenuation = Vec3(1.0, 1.0, 1.0);
+            Vec3 outward_normal;
+            Vec3 reflected = reflect(r_in.direction, rec.normal);
+            Vec3 refracted;
 
             float ni_over_nt;
             float reflect_prob;
@@ -33,9 +33,9 @@ class dielectric : public material {
                 reflect_prob = 1.0;
             }
             if (drand48() < reflect_prob) {
-                scattered = ray(rec.p, reflected);
+                scattered = Ray(rec.p, reflected);
             } else  {
-                scattered = ray(rec.p, refracted);
+                scattered = Ray(rec.p, refracted);
             }
             
             return true;
