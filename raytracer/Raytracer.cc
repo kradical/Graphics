@@ -40,11 +40,11 @@ int main() {
 
             col /= float(ns);
             
-            col = Vec3(sqrt(col.r()), sqrt(col.g()), sqrt(col.b()));
+            col = Vec3(sqrt(col.x), sqrt(col.y), sqrt(col.z));
 
-            int ir = int(255.99 * col.r());
-            int ig = int(255.99 * col.g());
-            int ib = int(255.99 * col.b());
+            int ir = int(255.99 * col.x);
+            int ig = int(255.99 * col.y);
+            int ib = int(255.99 * col.z);
 
             std::cout << ir << " " << ig << " " << ib << "\n";
         }
@@ -75,7 +75,7 @@ Vec3 color(const Ray& r, Hitable* world, int depth) {
     } else {
         // background
         Vec3 unit_direction = unit_vector(r.direction);
-        float t = 0.5 * (unit_direction.y() + 1.0);
+        float t = 0.5 * (unit_direction.y + 1.0);
         return (1 - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0);
     }
 }

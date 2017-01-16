@@ -30,6 +30,6 @@ Camera::Camera(Vec3 from, Vec3 at, Vec3 up, float fov, float aspect, float apert
 
 Ray Camera::get_ray(float s, float t) { 
     Vec3 rd = lens_radius * random_in_unit_disk();
-    Vec3 offset_origin = origin + u * rd.x() + v * rd.y();
+    Vec3 offset_origin = origin + u * rd.x + v * rd.y;
     return Ray(offset_origin, lower_left_corner + s * horizontal + t * vertical - offset_origin);
 }
