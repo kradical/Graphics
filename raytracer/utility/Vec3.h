@@ -17,7 +17,6 @@ public:
     inline const Vec3& operator/=(const float t);
 
     inline float length() const;
-private:
     inline float squared_length() const;
 };
 
