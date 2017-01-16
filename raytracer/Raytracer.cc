@@ -3,19 +3,19 @@
 
 #include "utility/Vec3.h"
 #include "utility/Ray.h"
-#include "geometry/hitable.h"
 #include "camera/Camera.h"
-#include "geometry/sphere.h"
-#include "geometry/plane.h"
-#include "material/lambertian.h"
-#include "material/metal.h"
-#include "material/dielectric.h"
-#include "geometry/hitable_list.h"
+#include "geometry/HitableList.h"
+#include "geometry/Hitable.h"
+#include "geometry/Sphere.h"
+#include "geometry/Plane.h"
+#include "material/Lambertian.h"
+#include "material/Metal.h"
+#include "material/Dielectric.h"
 #include "float.h"
 
-Vec3 color(const Ray&, hitable*, int);
+Vec3 color(const Ray&, Hitable*, int);
 float hit_sphere(const Vec3&, float, const Ray&);
-hitable* scene();
+Hitable* scene();
 
 int main() {
     int nx = 300; // width in pixels
@@ -23,7 +23,7 @@ int main() {
     int ns = 25; // number of samples per pixel
     
     Camera cam(Vec3(0, 0, 0), Vec3(0, 0, -1), Vec3(0, 1, 0), 90, float(nx) / float(ny), 0);
-    hitable* world = scene();
+    Hitable* world = scene();
 
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
     for (int j = ny - 1; j >= 0; j--) {
@@ -51,18 +51,18 @@ int main() {
     }
 }
 
-hitable* scene() {
+Hitable* scene() {
     int n = 4;
-    hitable** list = new hitable*[n];
-    list[0] = new plane(Vec3(0, -0.5, 0), Vec3(0, 1, 0), new lambertian(Vec3(0.8, 0.8, 0)));
-    list[1] = new sphere(Vec3(0, 0, -1), 0.5, new lambertian(Vec3(0.1, 0.2, 0.5)));
-    list[2] = new sphere(Vec3(1, 0, -1), 0.5, new metal(Vec3(0.5, 0.5, 0.5), 0));
-    list[3] = new sphere(Vec3(-1, 0, -1), -0.5, new dielectric(1.1));
+    Hitable** list = new Hitable*[n];
+    list[0] = new Plane(Vec3(0, -0.5, 0), Vec3(0, 1, 0), new Lambertian(Vec3(0.8, 0.8, 0)));
+    list[1] = new Sphere(Vec3(0, 0, -1), 0.5, new Lambertian(Vec3(0.1, 0.2, 0.5)));
+    list[2] = new Sphere(Vec3(1, 0, -1), 0.5, new Metal(Vec3(0.5, 0.5, 0.5), 0));
+    list[3] = new Sphere(Vec3(-1, 0, -1), -0.5, new Dielectric(1.1));
 
-    return new hitable_list(list, n);
+    return new HitableList(list, n);
 }
 
-Vec3 color(const Ray& r, hitable* world, int depth) {
+Vec3 color(const Ray& r, Hitable* world, int depth) {
     hit_record rec;
     if (world->hit(r, 0.01, FLT_MAX, rec)) {
         Ray scattered;

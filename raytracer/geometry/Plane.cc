@@ -1,24 +1,8 @@
-#ifndef PLANEH
-#define PLANEH
+#include "Plane.h"
 
-#include "hitable.h"
+Plane::Plane(Vec3 p, Vec3 n, Material* m) : p(p), n(n), mat_ptr(m) {};
 
-class material;
-
-// plane: represented by a point and a normal
-class plane: public hitable {
-public:
-    plane() {}
-    plane(Vec3 p, Vec3 n, material* m) : p(p), n(n), mat_ptr(m) {};
-
-    virtual bool hit(const Ray& r, float tmin, float tmax, hit_record& rec) const;
-
-    Vec3 p;
-    Vec3 n;
-    material* mat_ptr;
-};
-
-bool plane::hit(const Ray& r, float t_min, float t_max, hit_record& rec) const {
+bool Plane::hit(const Ray& r, float t_min, float t_max, hit_record& rec) const {
     float normal_component = dot(n, r.direction);
 
     // ray hits plane in scene (some component is opposite)
@@ -37,4 +21,3 @@ bool plane::hit(const Ray& r, float t_min, float t_max, hit_record& rec) const {
 
     return false;
 }
-#endif

@@ -1,2 +1,2 @@
 make:
-	g++ -o raytracer.out utility/Vec3.cc utility/Ray.cc camera/Camera.cc Raytracer.cc
+	g++ -o raytracer.out utility/*.cc geometry/*.cc material/*.cc camera/*.cc Raytracer.cc
