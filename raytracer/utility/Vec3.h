@@ -15,11 +15,15 @@ public:
     inline Vec3 operator-() const;
     inline const Vec3& operator+=(const Vec3 &v);
     inline const Vec3& operator/=(const float t);
+    inline float operator[](int i) const;
+    inline float& operator[](int i);
 
     inline float length() const;
     inline float squared_length() const;
 };
 
+// return the negation of this vector.
+inline Vec3 Vec3::operator-() const { return Vec3(-x, -y, -z); }
 // add a vector component-wise to this.
 inline const Vec3& Vec3::operator+=(const Vec3 &v) {
     x += v.x;
@@ -32,8 +36,20 @@ inline const Vec3& Vec3::operator/=(const float t) {
     y /= t;
     z /= t;
 }
-// return the negation of this vector.
-inline Vec3 Vec3::operator-() const { return Vec3(-x, -y, -z); }
+inline float Vec3::operator[](int i) const {
+    switch(i) {
+    case 0: return x;
+    case 1: return y;
+    case 2: return z;
+    }
+}
+inline float& Vec3::operator[](int i) {
+    switch(i) {
+    case 0: return x;
+    case 1: return y;
+    case 2: return z;
+    }
+}
 
 // return vector length.
 inline float Vec3::length() const { return sqrt(squared_length()); }
