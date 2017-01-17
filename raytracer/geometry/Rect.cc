@@ -17,23 +17,25 @@ inline float max(float a, float b, float c, float d) {
     return max_ab > max_bc ? max_ab : max_bc;
 }
 
-Rect::Rect(Vec3 _a, Vec3 _b, Vec3 _c, Vec3 _d, Material* m) : a(_a), b(_b), c(_c), d(_d), mat_ptr(m) {
-    u = unit_vector(_b - _a);
-    v = unit_vector(_d - _a);
-    n = unit_vector(cross(u, v));
+Rect::Rect(Vec3 _a, Vec3 _b, Vec3 _d, Material* m) : a(_a), b(_b), d(_d), mat_ptr(m) {
+    u = unit_vector(b - a);
+    v = unit_vector(d - a);
+    n = cross(u, v); // cross 2 unit vecs is a unit vec
 
-    float ua = dot(u, _a);
-    float ub = dot(u, _b);
-    float uc = dot(u, _c);
-    float ud = dot(u, _d);
+    c = b + d - a; // a + (b - a) + (d - a)
+
+    float ua = dot(u, a);
+    float ub = dot(u, b);
+    float uc = dot(u, c);
+    float ud = dot(u, d);
 
     minU = min(ua, ub, uc, ud);
     maxU = max(ua, ub, uc, ud);
 
-    float va = dot(v, _a);
-    float vb = dot(v, _b);
-    float vc = dot(v, _c);
-    float vd = dot(v, _d);
+    float va = dot(v, a);
+    float vb = dot(v, b);
+    float vc = dot(v, c);
+    float vd = dot(v, d);
 
     minV = min(va, vb, vc, vd);
     maxV = max(va, vb, vc, vd);

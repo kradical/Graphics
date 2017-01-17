@@ -56,7 +56,7 @@ Hitable* scene() {
     int n = 4;
     Hitable** list = new Hitable*[n];
     //list[0] = new Plane(Vec3(0, -0.5, 0), Vec3(0, 1, 0), new Lambertian(Vec3(0.8, 0.8, 0)));
-    list[0] = new Rect(Vec3(-2.5, 1, -3.5), Vec3(2.5, -1, -3.5), Vec3(2.5, -1, 1.5), Vec3(-2.5, 1, 1.5), new Lambertian(Vec3(0.8, 0.8, 0)));
+    list[0] = new Rect(Vec3(-2.5, 1, -3.5), Vec3(2.5, -1, -3.5), Vec3(-2.5, 1, 1.5), new Lambertian(Vec3(0.8, 0.8, 0)));
     list[1] = new Sphere(Vec3(0, 0, -1), 0.5, new Lambertian(Vec3(0.1, 0.2, 0.5)));
     list[2] = new Sphere(Vec3(1, 0, -1), 0.5, new Metal(Vec3(0.5, 0.5, 0.5), 0));
     list[3] = new Sphere(Vec3(-1, 0, -1), -0.5, new Dielectric(1.1));
