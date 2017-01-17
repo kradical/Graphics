@@ -19,11 +19,11 @@ float hit_sphere(const Vec3&, float, const Ray&);
 Hitable* scene();
 
 int main() {
-    int nx = 800; // width in pixels
-    int ny = 400; // height in pixels
+    int nx = 600; // width in pixels
+    int ny = 300; // height in pixels
     int ns = 15; // number of samples per pixel
     
-    Camera cam(Vec3(4, 3, 3), Vec3(0, 0, -1), Vec3(0, 1, 0), 90, float(nx) / float(ny), 0);
+    Camera cam(Vec3(0, -1, 0), Vec3(0, 0, -1), Vec3(0, 1, 0), 90, float(nx) / float(ny), 0);
     Hitable* world = scene();
 
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
@@ -56,7 +56,7 @@ Hitable* scene() {
     int n = 4;
     Hitable** list = new Hitable*[n];
     //list[0] = new Plane(Vec3(0, -0.5, 0), Vec3(0, 1, 0), new Lambertian(Vec3(0.8, 0.8, 0)));
-    list[0] = new Rect(Vec3(-2.5, -0.5, -3.5), Vec3(2.5, -0.5, -3.5), Vec3(2.5, -0.5, 1.5), Vec3(-2.5, -0.5, 1.5), new Lambertian(Vec3(0.8, 0.8, 0)));
+    list[0] = new Rect(Vec3(-2.5, 1, -3.5), Vec3(2.5, -1, -3.5), Vec3(2.5, -1, 1.5), Vec3(-2.5, 1, 1.5), new Lambertian(Vec3(0.8, 0.8, 0)));
     list[1] = new Sphere(Vec3(0, 0, -1), 0.5, new Lambertian(Vec3(0.1, 0.2, 0.5)));
     list[2] = new Sphere(Vec3(1, 0, -1), 0.5, new Metal(Vec3(0.5, 0.5, 0.5), 0));
     list[3] = new Sphere(Vec3(-1, 0, -1), -0.5, new Dielectric(1.1));
