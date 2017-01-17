@@ -5,9 +5,11 @@ Vec3 Material::reflect(const Vec3& v, const Vec3& n) const {
 }
 
 Vec3 Material::random_in_unit_sphere() const {
-    Vec3 p;
+    float x, y, z;
     do {
-        p = 2.0 * Vec3(drand48(), drand48(), drand48()) - Vec3(1, 1, 1);
-    } while (p.squared_length() >= 1.0);
-    return p;
+        x = 2.0 * drand48() - 1;
+        y = 2.0 * drand48() - 1;
+        z = 2.0 * drand48() - 1;
+    } while (x * x + y * y + z * z > 1.0);
+    return Vec3(x, y, z);
 }

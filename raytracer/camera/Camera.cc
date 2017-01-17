@@ -2,11 +2,12 @@
 #include <cstdlib>
 
 Vec3 random_in_unit_disk() {
-    Vec3 p;
+    float x, y;
     do {
-        p = 2 * Vec3(drand48(), drand48(), 0) - Vec3(1, 1, 0);
-    } while (p.squared_length() >= 1);
-    return p;
+        x = 2 * drand48() - 1;
+        y = 2 * drand48() - 1;
+    } while (x * x + y * y > 1);
+    return Vec3(x, y, 0);
 }
 
 Camera::Camera(Vec3 from, Vec3 at, Vec3 up, float fov, float aspect, float aperture) {
