@@ -23,7 +23,7 @@ int main() {
     int ny = 200; // height in pixels
     int ns = 10; // number of samples per pixel
     
-    Camera cam(Vec3(0, 0, 0), Vec3(0, 0, -1), Vec3(0, 1, 0), 90, float(nx) / float(ny), 0);
+    Camera cam(Vec3(0, 0, 1), Vec3(0, 0, -1), Vec3(0, 1, 0), 90, float(nx) / float(ny), 0);
     Hitable* world = scene();
 
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
@@ -53,12 +53,12 @@ int main() {
 }
 
 Hitable* scene() {
-    int n = 3;
+    int n = 2;
     Hitable** list = new Hitable*[n];
-    list[0] = new Plane(Vec3(0, -0.5, 0), Vec3(0, 1, 0), new Lambertian(Vec3(0.8, 0.8, 0)));
+    // list[0] = new Plane(Vec3(0, -0.5, 0), Vec3(0, 1, 0), new Lambertian(Vec3(0.8, 0.8, 0)));
     // list[0] = new Rect(Vec3(-2.5, 1, -3.5), Vec3(2.5, -1, -3.5), Vec3(-2.5, 1, 1.5), new Lambertian(Vec3(0.8, 0.8, 0)));
-    list[1] = new Sphere(Vec3(0, 0, -1), 0.5, new Lambertian(Vec3(0.1, 0.2, 0.5)));
-    list[2] = new Sphere(Vec3(1, 0, -1), 0.5, new Lambertian(Vec3(0.5, 0.5, 0.5)));
+    list[0] = new Sphere(Vec3(0, 0, -1), 0.5, new Lambertian(Vec3(0.1, 0.2, 0.5)));
+    list[1] = new Sphere(Vec3(1, 0, -1), 0.5, new Lambertian(Vec3(0.5, 0.5, 0.5)));
 
     return new HitableList(list, n);
 }
@@ -67,12 +67,12 @@ Vec3 color(const Ray& r, Hitable* world, int depth) {
     hit_record rec;
     if (world->hit(r, 0.01, FLT_MAX, rec)) {
 
-        Ray lightDirection = Ray(rec.p + 1e-4 * rec.normal, Vec3(-1, 1, 0) - rec.p);
+        Ray lightDirection = Ray(rec.p + 1e-4 * rec.normal, unit_vector(Vec3(-1, 1, 0) - rec.p));
 
         if (!world->hit(lightDirection, 0.01, FLT_MAX, rec)) {
-            Vec3 lightColor = Vec3(0.5, 0.5, 1);
-            Vec3 surfaceColor = Vec3(1, 0.5, 0.5);
-            return surfaceColor * std::max(float(0), dot(rec.normal, lightDirection.direction)) * lightColor;
+            Vec3 surfaceColor = Vec3(1, 1, 0);
+
+            return surfaceColor * std::max(float(0), dot(rec.normal, lightDirection.direction));
         }
     }
     return Vec3(0);

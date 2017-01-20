@@ -2,4 +2,4 @@
 
 make
 ./raytracer.out > test.ppm
-xdg-open test.ppm
+open test.ppm
