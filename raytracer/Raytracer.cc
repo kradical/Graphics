@@ -19,11 +19,11 @@ float hit_sphere(const Vec3&, float, const Ray&);
 Hitable* scene();
 
 int main() {
-    int nx = 600; // width in pixels
-    int ny = 300; // height in pixels
-    int ns = 15; // number of samples per pixel
+    int nx = 400; // width in pixels
+    int ny = 200; // height in pixels
+    int ns = 10; // number of samples per pixel
     
-    Camera cam(Vec3(0, -1, 0), Vec3(0, 0, -1), Vec3(0, 1, 0), 90, float(nx) / float(ny), 0);
+    Camera cam(Vec3(0, 0, 0), Vec3(0, 0, -1), Vec3(0, 1, 0), 90, float(nx) / float(ny), 0);
     Hitable* world = scene();
 
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
@@ -53,13 +53,12 @@ int main() {
 }
 
 Hitable* scene() {
-    int n = 4;
+    int n = 3;
     Hitable** list = new Hitable*[n];
-    //list[0] = new Plane(Vec3(0, -0.5, 0), Vec3(0, 1, 0), new Lambertian(Vec3(0.8, 0.8, 0)));
-    list[0] = new Rect(Vec3(-2.5, 1, -3.5), Vec3(2.5, -1, -3.5), Vec3(-2.5, 1, 1.5), new Lambertian(Vec3(0.8, 0.8, 0)));
+    list[0] = new Plane(Vec3(0, -0.5, 0), Vec3(0, 1, 0), new Lambertian(Vec3(0.8, 0.8, 0)));
+    // list[0] = new Rect(Vec3(-2.5, 1, -3.5), Vec3(2.5, -1, -3.5), Vec3(-2.5, 1, 1.5), new Lambertian(Vec3(0.8, 0.8, 0)));
     list[1] = new Sphere(Vec3(0, 0, -1), 0.5, new Lambertian(Vec3(0.1, 0.2, 0.5)));
-    list[2] = new Sphere(Vec3(1, 0, -1), 0.5, new Metal(Vec3(0.5, 0.5, 0.5), 0));
-    list[3] = new Sphere(Vec3(-1, 0, -1), -0.5, new Dielectric(1.1));
+    list[2] = new Sphere(Vec3(1, 0, -1), 0.5, new Lambertian(Vec3(0.5, 0.5, 0.5)));
 
     return new HitableList(list, n);
 }
@@ -67,17 +66,14 @@ Hitable* scene() {
 Vec3 color(const Ray& r, Hitable* world, int depth) {
     hit_record rec;
     if (world->hit(r, 0.01, FLT_MAX, rec)) {
-        Ray scattered;
-        Vec3 attenuation;
-        if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
-            return attenuation * color(scattered, world, depth + 1);
-        } else {
-            return Vec3(0, 0, 0);
+
+        Ray lightDirection = Ray(rec.p + 1e-4 * rec.normal, Vec3(-1, 1, 0) - rec.p);
+
+        if (!world->hit(lightDirection, 0.01, FLT_MAX, rec)) {
+            Vec3 lightColor = Vec3(0.5, 0.5, 1);
+            Vec3 surfaceColor = Vec3(1, 0.5, 0.5);
+            return surfaceColor * std::max(float(0), dot(rec.normal, lightDirection.direction)) * lightColor;
         }
-    } else {
-        // background
-        Vec3 unit_direction = unit_vector(r.direction);
-        float t = 0.5 * (unit_direction.y + 1.0);
-        return (1 - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0);
     }
+    return Vec3(0);
 }

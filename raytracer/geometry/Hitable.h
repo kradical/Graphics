@@ -6,8 +6,8 @@
 class Material;
 
 struct hit_record {
-    float t;
-    Vec3 p;
+    float t; // how far along the ray
+    Vec3 p; // point that was hit
     Vec3 normal;
     Material *mat_ptr;
 };

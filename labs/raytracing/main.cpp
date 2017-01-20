@@ -187,6 +187,6 @@ void rasterize() {
 
 int main() {
     // comment out one of these
-    //raytrace();
+    raytrace();
     rasterize();
 }
