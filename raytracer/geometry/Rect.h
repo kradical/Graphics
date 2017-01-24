@@ -14,9 +14,11 @@ class Material;
 //   +------+
 //  d        c
 //
+// Must specify an actual rectangle, not arbitrary quadrilateral
 class Rect: public Hitable {
 public:
     Vec3 a, b, c, d;
+    
     Vec3 u, v, n; // basis for the rect
     float minU, maxU;
     float minV, maxV;
