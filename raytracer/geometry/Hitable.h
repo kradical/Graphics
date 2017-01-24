@@ -9,6 +9,7 @@ struct hit_record {
     float t; // how far along the ray
     Vec3 p; // point that was hit
     Vec3 normal;
+    Ray r_in; // Ray into the hit
     Material *mat_ptr;
 };
 

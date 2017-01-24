@@ -53,3 +53,7 @@ float Dielectric::schlick(float cosine, float ref_idx) const {
     r0 = r0 * r0;
     return r0 + (1 - r0) * pow((1 - cosine), 5);
 }
+
+Vec3 Dielectric::totalLitColor(PointLight** lights, hit_record* initialHit, HitableList* world) const {
+    return Vec3(0);
+}

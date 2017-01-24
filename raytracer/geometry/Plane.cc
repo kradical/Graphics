@@ -13,6 +13,7 @@ bool Plane::hit(const Ray& r, float t_min, float t_max, hit_record& rec) const {
             rec.t = t;
             rec.p = r.point_at(rec.t);
             rec.normal = n;
+            rec.r_in = r;
             rec.mat_ptr = mat_ptr;
 
             return true;
