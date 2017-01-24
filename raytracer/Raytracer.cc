@@ -56,16 +56,18 @@ int main() {
 }
 
 HitableList* scene() {
-    int n = 3;
+    int n = 5;
     Hitable** list = new Hitable*[n];
     list[0] = new Plane(Vec3(0, -1, 0), Vec3(0, 1, 0), new Lambertian(Vec3(1, 0, 0)));
     list[1] = new Sphere(Vec3(0, 0, -1), 0.5, new Lambertian(Vec3(0.1, 0.6, 0.6)));
     list[2] = new Sphere(Vec3(1.1, 0, -1), 0.5, new Metal(Vec3(0.5, 0.5, 0.5), 0.1));
     list[3] = new Plane(Vec3(4, 0, 0), Vec3(-1, 0, 0), new Lambertian(Vec3(0, 1, 0)));
+    list[4] = new Sphere(Vec3(-1.1, 0, -1), 0.5, new Dielectric(1.05));
 
     return new HitableList(list, n);
 }
 
+// TODO: add a light list type
 PointLight** scene_lighting() {
     PointLight** list = new PointLight*[1];
     list[0] = new PointLight(Vec3(1, 1, 1), Vec3(1));

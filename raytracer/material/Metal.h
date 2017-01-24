@@ -11,7 +11,7 @@ public:
     Metal(const Vec3& s, float f);
     
     virtual bool scatter(const Ray&, const hit_record&, Vec3&, Ray&) const;
-    virtual Vec3 totalLitColor(PointLight**, hit_record*, HitableList*) const;
+    virtual Vec3 totalLitColor(PointLight**, hit_record, HitableList*, int) const;
 };
 
 #endif

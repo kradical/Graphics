@@ -9,7 +9,7 @@ bool Lambertian::scatter(const Ray& r_in, const hit_record& rec, Vec3& attenuati
     return true;
 }
 
-Vec3 Lambertian::totalLitColor(PointLight** lights, hit_record* initialHit, HitableList* world) const {
+Vec3 Lambertian::totalLitColor(PointLight** lights, hit_record initialHit, HitableList* world, int depth) const {
     hit_record rec;
 
     Vec3 totalColor = Vec3(0);
@@ -17,11 +17,13 @@ Vec3 Lambertian::totalLitColor(PointLight** lights, hit_record* initialHit, Hita
 
     int numLights = 1;
     for (int i = 0; i < numLights; i++){
-        Vec3 toLight = lights[i]->point - initialHit->p;
-        Ray lightDirection = Ray(initialHit->p + 1e-4 * initialHit->normal, unit_vector(toLight));
+        Vec3 toLight = lights[i]->point - initialHit.p;
+        Ray lightDirection = Ray(initialHit.p + 1e-4 * initialHit.normal, unit_vector(toLight));
 
         bool hit_nothing = true;
-        for (int j = 0; j < world->list_size; j++) {
+        // TODO: fix this check
+        // check if it hit any non-dielectric material
+        for (int j = 0; j < world->list_size - 1; j++) {
             if(world->list[j]->hit(lightDirection, 0.01, toLight.length(), rec)) {
                 hit_nothing = false;
                 break;
@@ -30,7 +32,7 @@ Vec3 Lambertian::totalLitColor(PointLight** lights, hit_record* initialHit, Hita
 
         if (hit_nothing) {
             lightsHit += 1;
-            totalColor += (surfaceColor * lights[i]->color) * std::max(float(0), dot(initialHit->normal, lightDirection.direction));
+            totalColor += (surfaceColor * lights[i]->color) * std::max(float(0), dot(initialHit.normal, lightDirection.direction));
         }
     }
 

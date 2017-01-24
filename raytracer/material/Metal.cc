@@ -10,9 +10,9 @@ bool Metal::scatter(const Ray& r_in, const hit_record& rec, Vec3& attenuation, R
     return dot(scattered.direction, rec.normal) > 0;
 }
 
-Vec3 Metal::totalLitColor(PointLight** lights, hit_record* initialHit, HitableList* world) const {
-    Vec3 reflected = reflect(unit_vector(initialHit->r_in.direction), initialHit->normal);
-    Ray reflectedRay = Ray(initialHit->p, reflected + fuzz * random_in_unit_sphere());
+Vec3 Metal::totalLitColor(PointLight** lights, hit_record initialHit, HitableList* world, int depth) const {
+    Vec3 reflected = reflect(unit_vector(initialHit.r_in.direction), initialHit.normal);
+    Ray reflectedRay = Ray(initialHit.p, reflected + fuzz * random_in_unit_sphere());
 
-    return surfaceColor * color(reflectedRay, world, lights, 0);
+    return surfaceColor * color(reflectedRay, world, lights, depth + 1);
 }
