@@ -1,9 +1,6 @@
 #include "HitableList.h"
 
-HitableList::HitableList(Hitable** l, int n) {
-    list = l;
-    list_size = n;
-}
+HitableList::HitableList(Hitable** l, int n, int nd) : list(l), list_size(n), non_dielectrics(nd) { }
 
 bool HitableList::hit(const Ray& r, float t_min, float t_max, hit_record& rec) const {
     hit_record temp_rec;

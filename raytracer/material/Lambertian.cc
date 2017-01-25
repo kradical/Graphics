@@ -21,9 +21,7 @@ Vec3 Lambertian::totalLitColor(PointLight** lights, hit_record initialHit, Hitab
         Ray lightDirection = Ray(initialHit.p + 1e-4 * initialHit.normal, unit_vector(toLight));
 
         bool hit_nothing = true;
-        // TODO: fix this check
-        // check if it hit any non-dielectric material
-        for (int j = 0; j < world->list_size - 1; j++) {
+        for (int j = 0; j < world->non_dielectrics; j++) {
             if(world->list[j]->hit(lightDirection, 0.01, toLight.length(), rec)) {
                 hit_nothing = false;
                 break;
