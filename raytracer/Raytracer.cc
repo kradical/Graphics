@@ -25,7 +25,7 @@ int main() {
     int ny = 400; // height in pixels
     int ns = 5; // number of samples per pixel
     
-    Camera cam(Vec3(0, 1, 1), Vec3(0, 0, -1), Vec3(0, 1, 0), 90, float(nx) / float(ny), 0.01);
+    Camera cam(Vec3(0, 0.5, 1), Vec3(0, 0, -1), Vec3(0, 1, 0), 90, float(nx) / float(ny), 0.01);
     HitableList* world = scene();
     PointLight** lights = scene_lighting();
 
@@ -58,20 +58,21 @@ int main() {
 HitableList* scene() {
     int n = 5;
     Hitable** list = new Hitable*[n];
-    list[0] = new Plane(Vec3(0, -1, 0), Vec3(0, 1, 0), new Lambertian(Vec3(1, 0, 0)));
-    list[1] = new Sphere(Vec3(0, 0, -1), 0.5, new Lambertian(Vec3(0.1, 0.6, 0.6)));
-    list[2] = new Sphere(Vec3(1.1, 0, -1), 0.5, new Metal(Vec3(0.5, 0.5, 0.5), 0.1));
-    list[3] = new Plane(Vec3(4, 0, 0), Vec3(-1, 0, 0), new Lambertian(Vec3(0, 1, 0)));
-    list[4] = new Sphere(Vec3(-1.1, 0, -1), 0.5, new Dielectric(1.05));
+    list[0] = new Sphere(Vec3(0, 0, -1), 0.5, new Lambertian(Vec3(0.1, 0.6, 0.6)));
+    list[1] = new Sphere(Vec3(1.1, 0, -1), 0.5, new Metal(Vec3(0.5, 0.5, 0.5), 0.1));
+    list[2] = new Rect(Vec3(1.6, -0.5, -2), Vec3(-1.6, -0.5, -2), Vec3(1.6, -0.5, 0), new Lambertian(Vec3(1, 0, 0)));
+    list[3] = new Rect(Vec3(-1.6, 2, -4), Vec3(-1.6, 2, 0), Vec3(1.6, 0, -4), new Lambertian(Vec3(0, 1, 0)));
 
-    return new HitableList(list, n);
+    int dielectrics = 1;
+    list[4] = new Sphere(Vec3(-1.1, 0, -1), 0.5, new Dielectric(1.1));
+    return new HitableList(list, n, n - dielectrics);
 }
 
 // TODO: add a light list type
 PointLight** scene_lighting() {
     PointLight** list = new PointLight*[1];
     list[0] = new PointLight(Vec3(1, 1, 1), Vec3(1));
-    list[1] = new PointLight(Vec3(0, 0, 0), Vec3(0.01)); // small light at camera
+    list[1] = new PointLight(Vec3(0, 0.5, -1), Vec3(0.1)); // small light at camera
 
     return list;
 }
