@@ -1,3 +1,6 @@
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 #include <iostream>
 #include <stdlib.h>
 
@@ -21,38 +24,39 @@ HitableList* scene();
 PointLight** scene_lighting();
 
 int main() {
-    int nx = 600; // width in pixels
-    int ny = 400; // height in pixels
-    int ns = 5; // number of samples per pixel
+    int width = 600; // width in pixels
+    int height = 400; // height in pixels
+    int samples = 5; // number of samples per pixel
+
+    unsigned char pixels[height * width][4];
     
-    Camera cam(Vec3(0, 0.5, 1), Vec3(0, 0, -1), Vec3(0, 1, 0), 90, float(nx) / float(ny), 0.01);
+    Camera cam(Vec3(0, 0.5, 1), Vec3(0, 0, -1), Vec3(0, 1, 0), 90, float(width) / float(height), 0.01);
     HitableList* world = scene();
     PointLight** lights = scene_lighting();
 
-    std::cout << "P3\n" << nx << " " << ny << "\n255\n";
-    for (int j = ny - 1; j >= 0; j--) {
-        for (int i = 0; i < nx; i++) {
+    #pragma omp parallel for
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) {
             Vec3 col(0);
-            for (int s = 0; s < ns; s++) {
-                float u = float(i + drand48()) / float(nx);
-                float v = float(j + drand48()) / float(ny);
+            for (int s = 0; s < samples; s++) {
+                float u = float(i + drand48()) / float(width);
+                float v = float(height - j + drand48()) / float(height);
             
                 Ray r = cam.get_ray(u, v);
             
                 col += color(r, world, lights, 0);
             }
 
-            col /= float(ns);
-            
-            col = Vec3(sqrt(col.x), sqrt(col.y), sqrt(col.z));
+            col /= float(samples);
 
-            int ir = int(255.99 * col.x);
-            int ig = int(255.99 * col.y);
-            int ib = int(255.99 * col.z);
-
-            std::cout << ir << " " << ig << " " << ib << "\n";
+            pixels[j * width + i][0] = int(255.99 * sqrt(col.x));
+            pixels[j * width + i][1] = int(255.99 * sqrt(col.y));
+            pixels[j * width + i][2] = int(255.99 * sqrt(col.z));
+            pixels[j * width + i][3] = 255;
         }
     }
+
+    stbi_write_png("raytrace.png", width, height, 4, pixels, width * 4);
 }
 
 HitableList* scene() {
