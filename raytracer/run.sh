@@ -2,4 +2,4 @@
 
 make
 ./raytracer.out
-xdg-open test.ppm
+xdg-open raytrace.png
