@@ -69,7 +69,7 @@ HitableList* scene() {
     list[4] = new Rect(Vec3(-2.6, 2, -4), Vec3(-2.6, 2, 0), Vec3(3.1, 0, -4), new Lambertian(Vec3(1, 0.2, 0.2)));
     list[5] = new Rect(Vec3(-2, 0, -0.5), Vec3(-1, -1, 0), Vec3(-1, 1, -1), new Lambertian(Vec3(1, 1, 0.2)));
 
-    int dielectrics = 0;
+    int dielectrics = 1;
     list[6] = new Sphere(Vec3(2, 0, -1), 0.5, new Dielectric(1.025));
     return new HitableList(list, n, n - dielectrics);
 }
