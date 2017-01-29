@@ -15,7 +15,7 @@ Vec3 Lambertian::totalLitColor(PointLight** lights, hit_record initialHit, Hitab
 
     Vec3 totalColor = Vec3(0);
 
-    int numLights = 2;
+    int numLights = 3;
     for (int i = 0; i < numLights; i++){
         Vec3 toLight = lights[i]->point - initialHit.p;
         Ray lightDirection = Ray(initialHit.p + 1e-4 * initialHit.normal, unit_vector(toLight));
