@@ -1,2 +1,2 @@
 renderer: *.cpp *.c
-	g++ -o renderer *.cpp *.c -I include -std=c++11 -lSDL2main -lSDL2
+	g++ -o renderer.out *.cpp *.c -I include -std=c++11 -lSDL2main -lSDL2
