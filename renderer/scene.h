@@ -44,10 +44,11 @@ struct Mesh
 
 struct Transform
 {
-    glm::vec3 Scale;
-    glm::vec3 RotationOrigin;
-    glm::quat Rotation;
-    glm::vec3 Translation;
+    glm::vec3 Scale = glm::vec3(1.0f);
+    glm::vec3 RotationOrigin = glm::vec3(0.0f);
+    glm::quat Rotation; // default creates identity
+    glm::vec3 Translation = glm::vec3(0.0f);
+    uint32_t ParentID = -1;
 };
 
 struct Instance
@@ -79,6 +80,7 @@ public:
     Camera MainCamera;
 
     void Init();
+    Transform getTransform(uint32_t transformID);
 };
 
 void LoadMeshesFromFile(

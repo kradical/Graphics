@@ -16,7 +16,7 @@ void Renderer::Init(Scene* scene)
     mScene = scene;
 
     // feel free to increase the GLSL version if your computer supports it
-    mShaders.SetVersion("410");
+    mShaders.SetVersion("450");
     mShaders.SetPreambleFile("preamble.glsl");
 
     mSceneSP = mShaders.AddProgramFromExts({ "scene.vert", "scene.frag" });
@@ -107,18 +107,32 @@ void Renderer::Render()
         {
             const Instance* instance = &mScene->Instances[instanceID];
             const Mesh* mesh = &mScene->Meshes[instance->MeshID];
-            const Transform* transform = &mScene->Transforms[instance->TransformID];
+            Transform curTrans = mScene->Transforms[instance->TransformID];
 
             glm::mat4 modelWorld;
-            modelWorld = translate(-transform->RotationOrigin) * modelWorld;
-            modelWorld = mat4_cast(transform->Rotation) * modelWorld;
-            modelWorld = translate(transform->RotationOrigin) * modelWorld;
-            modelWorld = scale(transform->Scale) * modelWorld;
-            modelWorld = translate(transform->Translation) * modelWorld;
+
+            modelWorld = scale(curTrans.Scale) * modelWorld;
+            modelWorld = translate(-curTrans.RotationOrigin) * modelWorld;
+            modelWorld = mat4_cast(curTrans.Rotation) * modelWorld;
+            modelWorld = translate(curTrans.RotationOrigin) * modelWorld;
+            modelWorld = translate(curTrans.Translation) * modelWorld;
 
             glm::mat3 normal_ModelWorld;
-            normal_ModelWorld = mat3_cast(transform->Rotation) * normal_ModelWorld;
-            normal_ModelWorld = glm::mat3(scale(1.0f / transform->Scale)) * normal_ModelWorld;
+            normal_ModelWorld = mat3_cast(curTrans.Rotation) * normal_ModelWorld;
+            normal_ModelWorld = glm::mat3(scale(1.0f / curTrans.Scale)) * normal_ModelWorld;
+
+            while (curTrans.ParentID != -1) {
+                curTrans = mScene->Transforms[curTrans.ParentID];
+
+                modelWorld = scale(curTrans.Scale) * modelWorld;
+                modelWorld = translate(-curTrans.RotationOrigin) * modelWorld;
+                modelWorld = mat4_cast(curTrans.Rotation) * modelWorld;
+                modelWorld = translate(curTrans.RotationOrigin) * modelWorld;
+                modelWorld = translate(curTrans.Translation) * modelWorld;
+
+                normal_ModelWorld = mat3_cast(curTrans.Rotation) * normal_ModelWorld;
+                normal_ModelWorld = glm::mat3(scale(1.0f / curTrans.Scale)) * normal_ModelWorld;
+            }
 
             glm::mat4 modelViewProjection = worldProjection * modelWorld;
 

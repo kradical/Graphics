@@ -8,8 +8,12 @@
 #include "flythrough_camera.h"
 
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
+
 
 #include <SDL2/SDL.h>
+
+#include <math.h>
 
 void Simulation::Init(Scene* scene)
 {
@@ -25,36 +29,55 @@ void Simulation::Init(Scene* scene)
         AddMeshInstance(mScene, loadedMeshID, &newInstanceID);
 
         // scale up the cube
-        uint32_t newTransformID = scene->Instances[newInstanceID].TransformID;
-        scene->Transforms[newTransformID].Scale = glm::vec3(2.0f);
+        cubeTransformID = scene->Instances[newInstanceID].TransformID;
+        scene->Transforms[cubeTransformID].Scale = glm::vec3(2.0f);
+        scene->Transforms[cubeTransformID].Translation = glm::vec3(0.0f, 2.0f, 0.0f);
     }
+
+    // parent for teapot orbit
+    Transform newTransform;
+    newTransform.Scale = glm::vec3(0.5f);
+    newTransform.Translation = glm::vec3(2.0f, 0.0f, 0.0f);
+    newTransform.RotationOrigin = -newTransform.Translation;
+    newTransform.ParentID = cubeTransformID;
+    orbitTransformID = scene->Transforms.insert(newTransform);
 
     loadedMeshIDs.clear();
     LoadMeshesFromFile(mScene, "assets/teapot/teapot.obj", &loadedMeshIDs);
     for (uint32_t loadedMeshID : loadedMeshIDs)
     {
-        // place a teapot on top of the cube
         {
             uint32_t newInstanceID;
             AddMeshInstance(mScene, loadedMeshID, &newInstanceID);
+
             uint32_t newTransformID = scene->Instances[newInstanceID].TransformID;
-            scene->Transforms[newTransformID].Translation += glm::vec3(0.0f, 2.0f, 0.0f);
+            Transform* transform = &scene->Transforms[newTransformID];
+
+            transform->ParentID = orbitTransformID;
         }
 
-        // place a teapot on the side
         {
             uint32_t newInstanceID;
             AddMeshInstance(mScene, loadedMeshID, &newInstanceID);
+            
             uint32_t newTransformID = scene->Instances[newInstanceID].TransformID;
-            scene->Transforms[newTransformID].Translation += glm::vec3(3.0f, 1.0f, 4.0f);
+            Transform* transform = &scene->Transforms[newTransformID];
+
+            transform->ParentID = cubeTransformID;
+            transform->Scale = glm::vec3(0.4f);
+            transform->Translation = glm::vec3(-2.0f, 0.0f, 0.0f);
         }
 
-        // place another teapot on the side
         {
             uint32_t newInstanceID;
             AddMeshInstance(mScene, loadedMeshID, &newInstanceID);
+
             uint32_t newTransformID = scene->Instances[newInstanceID].TransformID;
-            scene->Transforms[newTransformID].Translation += glm::vec3(3.0f, 1.0f, -4.0f);
+            Transform* transform = &scene->Transforms[newTransformID];
+
+            transform->ParentID = cubeTransformID;
+            transform->Scale = glm::vec3(0.3f);
+            transform->Translation = glm::vec3(0.0f, 2.0f, 0.0f);
         }
     }
 
@@ -89,6 +112,9 @@ void Simulation::Update(float deltaTime)
     
     int mx, my;
     Uint32 mouse = SDL_GetMouseState(&mx, &my);
+
+    glm::mat4 rotation = glm::rotate(deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+    mScene->Transforms[orbitTransformID].Rotation *= glm::quat(rotation);
 
     if ((mouse & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0)
     {

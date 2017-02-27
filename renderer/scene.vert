@@ -17,11 +17,8 @@ uniform mat3 Normal_ModelWorld;
 
 void main()
 {
-    gl_Position = ModelViewProjection * Position;
-    vertex_position = Position;
     vertex_texCoord = TexCoord;
-    vertex_normal = Normal;
-
-    
-    // TODO: Pass vertex attributes to fragment shader
+    vertex_normal = Normal_ModelWorld * Normal;
+    vertex_position = ModelWorld * Position;
+    gl_Position = ModelViewProjection * Position;
 }

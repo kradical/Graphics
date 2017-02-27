@@ -16,8 +16,7 @@ out vec4 FragColor;
 
 void main()
 {
-    // light at camera
-    vec3 lightDir = normalize(CameraPos - vec3(vertex_position));
+    vec3 lightDir = normalize(vec3(5) - vec3(vertex_position));
     float diffuse = clamp(dot(lightDir, vertex_normal), 0, 1);
 
     float specular;
@@ -34,7 +33,7 @@ void main()
         diffuseMap = vec4(Diffuse, 1.0);
     }
 
-    FragColor = 0.1 * vec4(Ambient, 1.0) 
-        + diffuse * diffuseMap
+    FragColor = 0.02 * vec4(Ambient, 1.0) 
+        + diffuse * diffuseMap;
         + specular * vec4(Specular, 1.0);
 }
