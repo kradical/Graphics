@@ -7,16 +7,18 @@ uniform float Shininess;
 
 uniform int HasDiffuseMap;
 uniform sampler2D DiffuseMap;
+uniform sampler2DShadow ShadowMap;
 
 in vec4 vertex_position;
 in vec2 vertex_texCoord;
 in vec3 vertex_normal;
+in vec4 shadow_map_coord;
 
 out vec4 FragColor;
 
 void main()
 {
-    vec3 lightDir = normalize(vec3(5) - vec3(vertex_position));
+    vec3 lightDir = normalize(vec3(3) - vec3(vertex_position));
     float diffuse = clamp(dot(lightDir, vertex_normal), 0, 1);
 
     float specular;
@@ -33,7 +35,9 @@ void main()
         diffuseMap = vec4(Diffuse, 1.0);
     }
 
-    FragColor = 0.02 * vec4(Ambient, 1.0) 
-        + diffuse * diffuseMap;
-        + specular * vec4(Specular, 1.0);
+    float visiblity = textureProj(ShadowMap, shadow_map_coord);
+
+    vec4 color = diffuse * diffuseMap + specular * vec4(Specular, 1.0);
+
+    FragColor = visiblity * color;
 }

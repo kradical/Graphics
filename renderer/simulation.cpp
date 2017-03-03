@@ -113,8 +113,8 @@ void Simulation::Update(float deltaTime)
     int mx, my;
     Uint32 mouse = SDL_GetMouseState(&mx, &my);
 
-    glm::mat4 rotation = glm::rotate(deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
-    mScene->Transforms[orbitTransformID].Rotation *= glm::quat(rotation);
+    //glm::mat4 rotation = glm::rotate(deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+    //mScene->Transforms[orbitTransformID].Rotation *= glm::quat(rotation);
 
     if ((mouse & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0)
     {

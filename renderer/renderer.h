@@ -14,12 +14,16 @@ class Renderer
     ShaderSet mShaders;
 
     GLuint* mSceneSP;
+    GLuint* mShadowSP;
 
     int mBackbufferWidth;
     int mBackbufferHeight;
     GLuint mBackbufferFBO;
     GLuint mBackbufferColorTO;
     GLuint mBackbufferDepthTO;
+
+    GLuint mShadowDepthTO;
+    GLuint mShadowFBO;
 
 public:
     void Init(Scene* scene);

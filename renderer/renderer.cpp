@@ -19,6 +19,25 @@ void Renderer::Init(Scene* scene)
     mShaders.SetVersion("450");
     mShaders.SetPreambleFile("preamble.glsl");
 
+    glGenTextures(1, &mShadowDepthTO);
+    glBindTexture(GL_TEXTURE_2D, mShadowDepthTO);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+    const float kShadowBorderDepth[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, kShadowBorderDepth);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenFramebuffers(1, &mShadowFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, mShadowFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mShadowDepthTO, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    mShadowSP = mShaders.AddProgramFromExts({ "shadow.vert", "shadow.frag" });
     mSceneSP = mShaders.AddProgramFromExts({ "scene.vert", "scene.frag" });
 }
 
@@ -71,7 +90,77 @@ void Renderer::Render()
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    // render scene
+    // first pass
+    if (*mShadowSP)
+    {
+        glUseProgram(*mShadowSP);
+        glBindFramebuffer(GL_FRAMEBUFFER, mShadowFBO);
+        glClearDepth(1.0f);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glViewport(0, 0, 1024, 1024);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        float mShadowSlopeScaleBias = 0.0f;
+        float mShadowDepthBias = 1000.0f;
+        glPolygonOffset(mShadowSlopeScaleBias, mShadowDepthBias);
+        
+        GLint SCENE_MODELVIEWPROJECTION_UNIFORM_LOCATION = glGetUniformLocation(*mShadowSP, "ModelViewProjection");
+
+
+        glm::vec3 lightPos = glm::vec3(5.0f);
+        glm::vec3 target = glm::vec3(0.0f);
+        glm::vec3 lightDir = normalize(target - lightPos);
+        glm::vec3 lightUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+        glm::mat4 lightWorldView = glm::lookAt(lightPos, lightPos + lightDir, lightUp);
+        glm::mat4 lightViewProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.01f, 100.0f);
+        glm::mat4 lightWorldProjection = lightViewProjection * lightWorldView;
+
+        for (uint32_t instanceID : mScene->Instances)
+        {
+            const Instance* instance = &mScene->Instances[instanceID];
+            const Mesh* mesh = &mScene->Meshes[instance->MeshID];
+            Transform curTrans = mScene->Transforms[instance->TransformID];
+
+            glm::mat4 modelWorld;
+
+            modelWorld = scale(curTrans.Scale) * modelWorld;
+            modelWorld = translate(-curTrans.RotationOrigin) * modelWorld;
+            modelWorld = mat4_cast(curTrans.Rotation) * modelWorld;
+            modelWorld = translate(curTrans.RotationOrigin) * modelWorld;
+            modelWorld = translate(curTrans.Translation) * modelWorld;
+
+            while (curTrans.ParentID != -1) {
+                curTrans = mScene->Transforms[curTrans.ParentID];
+
+                modelWorld = scale(curTrans.Scale) * modelWorld;
+                modelWorld = translate(-curTrans.RotationOrigin) * modelWorld;
+                modelWorld = mat4_cast(curTrans.Rotation) * modelWorld;
+                modelWorld = translate(curTrans.RotationOrigin) * modelWorld;
+                modelWorld = translate(curTrans.Translation) * modelWorld;
+            }
+
+            glm::mat4 modelViewProjection = lightWorldProjection * modelWorld;
+
+            glProgramUniformMatrix4fv(*mShadowSP, SCENE_MODELVIEWPROJECTION_UNIFORM_LOCATION, 1, GL_FALSE, value_ptr(modelViewProjection));
+
+            glBindVertexArray(mesh->MeshVAO);
+            for (size_t meshDrawIdx = 0; meshDrawIdx < mesh->DrawCommands.size(); meshDrawIdx++)
+            {
+                const GLDrawElementsIndirectCommand* drawCmd = &mesh->DrawCommands[meshDrawIdx];
+                glDrawElementsBaseVertex(GL_TRIANGLES, drawCmd->count, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * drawCmd->firstIndex), drawCmd->baseVertex);
+            }
+            glBindVertexArray(0);
+        }
+
+        glPolygonOffset(0.0f, 0.0f);
+        glDisable(GL_POLYGON_OFFSET_FILL);
+        glDisable(GL_DEPTH_TEST);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glUseProgram(0);
+    }
+
+    // second pass
     if (*mSceneSP)
     {
         glUseProgram(*mSceneSP);
@@ -80,13 +169,15 @@ void Renderer::Render()
         GLint SCENE_MODELWORLD_UNIFORM_LOCATION = glGetUniformLocation(*mSceneSP, "ModelWorld");
         GLint SCENE_NORMAL_MODELWORLD_UNIFORM_LOCATION = glGetUniformLocation(*mSceneSP, "Normal_ModelWorld");
         GLint SCENE_MODELVIEWPROJECTION_UNIFORM_LOCATION = glGetUniformLocation(*mSceneSP, "ModelViewProjection");
+        GLint SCENE_LIGHTMATRIX_UNIFORM_LOCATION = glGetUniformLocation(*mSceneSP, "LightMatrix");
         GLint SCENE_CAMERAPOS_UNIFORM_LOCATION = glGetUniformLocation(*mSceneSP, "CameraPos");
         GLint SCENE_HAS_DIFFUSE_MAP_UNIFORM_LOCATION = glGetUniformLocation(*mSceneSP, "HasDiffuseMap");
         GLint SCENE_AMBIENT_UNIFORM_LOCATION = glGetUniformLocation(*mSceneSP, "Ambient");
         GLint SCENE_DIFFUSE_UNIFORM_LOCATION = glGetUniformLocation(*mSceneSP, "Diffuse");
         GLint SCENE_SPECULAR_UNIFORM_LOCATION = glGetUniformLocation(*mSceneSP, "Specular");
         GLint SCENE_SHININESS_UNIFORM_LOCATION = glGetUniformLocation(*mSceneSP, "Shininess");
-        GLint SCENE_DIFFUSE_MAP_UNIFORM_LOCATION = glGetUniformLocation(*mSceneSP, "DiffuseMa");
+        GLint SCENE_DIFFUSE_MAP_UNIFORM_LOCATION = glGetUniformLocation(*mSceneSP, "DiffuseMap");
+        GLint SCENE_SHADOW_MAP_UNIFORM_LOCATION = glGetUniformLocation(*mSceneSP, "ShadowMap");
 
         const Camera& mainCamera = mScene->MainCamera;
 
@@ -98,6 +189,28 @@ void Renderer::Render()
         glm::mat4 worldProjection = viewProjection * worldView;
 
         glProgramUniform3fv(*mSceneSP, SCENE_CAMERAPOS_UNIFORM_LOCATION, 1, value_ptr(eye));
+
+        glActiveTexture(GL_TEXTURE0+ SCENE_SHADOW_MAP_TEXTURE_BINDING);
+        glUniform1i(SCENE_SHADOW_MAP_UNIFORM_LOCATION, SCENE_SHADOW_MAP_TEXTURE_BINDING);
+        glBindTexture(GL_TEXTURE_2D, mShadowDepthTO);
+        
+        glm::vec3 lightPos = glm::vec3(5.0f);
+        glm::vec3 target = glm::vec3(0.0f);
+        glm::vec3 lightDir = normalize(target - lightPos);
+        glm::vec3 lightUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+        glm::mat4 lightWorldView = glm::lookAt(lightPos, lightPos + lightDir, lightUp);
+        glm::mat4 lightViewProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.01f, 100.0f);
+        glm::mat4 lightWorldProjection = lightViewProjection * lightWorldView;
+
+        glm::mat4 lightOffsetMatrix = glm::mat4(
+            0.5f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.5f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.5f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f);
+        glm::mat4 lightMatrix = lightOffsetMatrix * lightWorldProjection;
+
+        glProgramUniformMatrix4fv(*mSceneSP, SCENE_LIGHTMATRIX_UNIFORM_LOCATION, 1, GL_FALSE, value_ptr(lightMatrix));
 
         glBindFramebuffer(GL_FRAMEBUFFER, mBackbufferFBO);
         glViewport(0, 0, mBackbufferWidth, mBackbufferHeight);
